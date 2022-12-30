@@ -1,0 +1,22 @@
+{
+    "name": "acris/spreadcontrol",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Acris\\Spreadcontrol\\": "src/",
+            "Acris\\App\\Models\\": "src/app/models",
+            "Acris\\App\\Controllers\\": "src/app/controllers",
+            "Acris\\App\\Libs\\": "src/app/libs"
+        }
+    },
+    "authors": [
+        {
+            "name": "Acris"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.26",
+        "nikic/fast-route": "^1.3"
+    }
+}
+
