@@ -1,0 +1,32 @@
+<?php 
+//  var_dump(realpath(__DIR__.'/../../public/css/dragdrop.css')); 
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./src/public/css/dragdrop.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>Control Spread</h2>
+
+    <form action="/document" method="POST">
+        <div class="file-drop-area">
+            <span class="fake-btn">Choose files</span>
+            <span class="file-msg">or drag and drop files here</span>
+            <input type="text" value="'">
+            <input class="file-input" name="document" type="file" multiple required>
+        </div>
+        <button class="fake-btn">Submit</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="./src/public/js/dragdrop.js"></script>
+</body>
+
+</html>
