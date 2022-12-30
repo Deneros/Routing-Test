@@ -23,7 +23,6 @@ $uri = rawurldecode($uri);
 
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
-var_dump($routeInfo);
 switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::NOT_FOUND:
         // ... 404 Not Found
@@ -34,9 +33,11 @@ switch ($routeInfo[0]) {
         break;
     case FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];
-        $vars = $routeInfo[2];
+
+        // var_dump($_FILES['document']);
+
         list($class, $method) = array($handler[0], $handler[1]);
-        call_user_func_array(array(new $class, $method), $vars);
+        call_user_func_array(array(new $class, $method), [array_merge($_POST, $_GET, $_FILES, $routeInfo[2])]);
         // ... call $handler with $vars
         break;
 }
