@@ -5,10 +5,7 @@ use Acris\App\Controllers\HomeController;
 
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $router) {
 
-    $router->get('/', function () {
-        echo 'Soy raiz';
-    });
-    $router->get('/home', [HomeController::class, 'index']);
+    $router->get('/', [HomeController::class, 'index']);
     $router->post('/document', [DocumentController::class, 'manageDocument']);
 });
 
@@ -33,8 +30,6 @@ switch ($routeInfo[0]) {
         break;
     case FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];
-
-        // var_dump($_FILES['document']);
 
         list($class, $method) = array($handler[0], $handler[1]);
         call_user_func_array(array(new $class, $method), [array_merge($_POST, $_GET, $_FILES, $routeInfo[2])]);
