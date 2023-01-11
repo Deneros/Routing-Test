@@ -10,8 +10,6 @@ class Controller
 
         if (str_contains($path, '.')) {
             $path = str_replace('.', '/', $path);
-            // var_dump(__DIR__ . '/../../views/' . $path . '.phtml');
-            // die();
 
             if ($this->verifyPath($path)) {
                 require_once __DIR__ . '/../../views/' . $path . '.phtml';
@@ -21,8 +19,6 @@ class Controller
                 require_once __DIR__ . '/../../views/' . $path . '.phtml';
             } 
         }
-
-        
     }
 
     private function verifyPath($path): bool
