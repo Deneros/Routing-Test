@@ -6,10 +6,15 @@ use Acris\App\Libs\Session;
 
 class Redirect extends Session
 {
-    
-
-    protected function with()
+    public function route($route)
     {
+        header('location: '.$route);
+        return $this;
+    }
 
+    protected function with($data)
+    {
+        $this->flash($data);
+        return $this;
     }
 }
