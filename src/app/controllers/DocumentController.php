@@ -17,21 +17,21 @@ class DocumentController extends Controller
         $sheet = $sheets->getSheet(0);
         $highestRow = $sheet->getHighestRow();
 
-        for ($row = 8; $row <= $highestRow; $row++) {
+        for ($row = 2; $row <= $highestRow; $row++) {
 
-            $cellCaja = $sheet->getCell('H' . $row);
+            $cellCaja = $sheet->getCell('G' . $row);
             $caja = $cellCaja->getValue();
 
-            $cellCarpeta = $sheet->getCell('I' . $row);
+            $cellCarpeta = $sheet->getCell('H' . $row);
             $carpeta = $cellCarpeta->getValue();
 
-            $cellCausacion = $sheet->getCell('E' . $row);
+            $cellCausacion = $sheet->getCell('D' . $row);
             $causacion = $cellCausacion->getValue();
 
-            $cellFolio = $sheet->getCell('K' . $row);
+            $cellFolio = $sheet->getCell('J' . $row);
             $folio = $cellFolio->getValue();
 
-            $cellFecha = $sheet->getCell('C' . $row);
+            $cellFecha = $sheet->getCell('B' . $row);
             $fecha = $cellFecha->getValue();
 
             if ($causacion != '' && $folio != '' && $caja != '' && $carpeta != '' && $fecha != '') {
@@ -45,7 +45,8 @@ class DocumentController extends Controller
             }
         }
 
-        $this->generateControlSheet($matrix);
+        $this->render('document.document');
+        // $this->generateFileLabels($matrix);
     }
 
     public function generateControlSheet(array $matrix)
@@ -69,7 +70,6 @@ class DocumentController extends Controller
                 $carpeta = ((int)$datos['carpeta'] - 1);
             }
             if ($carpeta != $datos['carpeta']) {
-                // var_dump("caja: {$datos['caja']} : carpeta: {$datos['carpeta']}");
                 $hoja->setCellValue('A' . $fila, "Carpeta {$datos['carpeta']}");
                 $hoja->insertNewRowBefore($fila + 1, 1);
 
@@ -77,7 +77,7 @@ class DocumentController extends Controller
                 $carpeta = $datos['carpeta'];
             }
             $hoja->setCellValue('A' . $fila, $fila);
-            $hoja->setCellValue('B' . $fila, 'Causacion' . $datos['causaciones']);
+            $hoja->setCellValue('B' . $fila, 'Causacion ' . $datos['causaciones']);
             $hoja->setCellValue('C' . $fila, 'Folios ' . $contador . ' a ' .  ((int)$datos['folios'] + $contador - 1));
             $fila++;
             $contador = $contador + ((int) $datos['folios']);
@@ -135,8 +135,57 @@ class DocumentController extends Controller
         $writer->save('TransferSheet.xlsx');
     }
 
-    public function generateFileLabels()
+    public function generateFileLabels(array $matrix)
     {
+        list($carpeta, $fila, $folio, $causacion_inicial, $causacion_final, $fecha_inicial, $fecha_final) = [$matrix[0]['carpeta'], 1, 0, $matrix[0]['causaciones'], 0, $matrix[0]['fecha'], ''];
+        $excel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $hoja = $excel->getSheet(0);
+
+        $fecha = new \DateTime();
+
+
+        foreach ($matrix as $key => $datos) {
+
+            // var_dump(date('d/m/Y',$fecha_inicial));
+            $fecha->setISODate(1900, 1, (int)$fecha_inicial);
+            $año = explode('/',$fecha->format('d/m/Y'))[2];     
+            // var_dump($año);       
+
+            $folio = $folio + (int)$datos['folios'];
+
+            if ($carpeta != $datos['carpeta']) {
+                $folio = $folio - ((int)$datos['folios']);
+
+                $causacion_final = $matrix[$key - 1]['causaciones'];
+                $fecha_final = $matrix[$key - 1]['fecha'];
+                $hoja->setCellValue('A' . $fila, $causacion_inicial);
+                $hoja->setCellValue('B' . $fila, $causacion_final);
+                $hoja->setCellValue('C' . $fila, $fecha_inicial);
+                $hoja->setCellValue('D' . $fila, $fecha_final);
+                $hoja->setCellValue('E' . $fila, $folio);
+                $hoja->setCellValue('F' . $fila, $año);
+
+                $fila++;
+                $folio = (int)$datos['folios'];
+                $carpeta = $datos['carpeta'];
+                $fecha_inicial = $datos['fecha'];
+                $causacion_inicial = $datos['causaciones'];
+            }
+            if ($key == count($matrix) - 1) {
+                $causacion_final = $datos['causaciones'];
+                $fecha_final = $datos['fecha'];
+                $hoja->setCellValue('A' . $fila, $causacion_inicial);
+                $hoja->setCellValue('B' . $fila, $causacion_final);
+                $hoja->setCellValue('C' . $fila, $fecha_inicial);
+                $hoja->setCellValue('D' . $fila, $fecha_final);
+                $hoja->setCellValue('E' . $fila, $folio);
+                $hoja->setCellValue('F' . $fila, $año);
+                $fila++;
+            }
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+        $writer->save('FileSheet.xlsx');
     }
 
     public function generateBoxLabels()
