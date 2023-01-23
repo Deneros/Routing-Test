@@ -6,7 +6,11 @@ use Acris\App\Controllers\HomeController;
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $router) {
 
     $router->get('/', [HomeController::class, 'index']);
-    $router->post('/document', [DocumentController::class, 'manageDocument']);
+    $router->post('/getinfo', [DocumentController::class, 'setInfo']);
+    $router->get('/document', [DocumentController::class, 'index']);
+    $router->get('/controlsheet',[DocumentController::class, 'ControlSheet']);
+    $router->get('/transfersheet',[DocumentController::class, 'TransferSheet']);
+    $router->get('/foldersheet',[DocumentController::class, 'FolderSheet']);
 });
 
 
