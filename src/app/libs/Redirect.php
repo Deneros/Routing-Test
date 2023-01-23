@@ -2,9 +2,9 @@
 
 namespace Acris\App\Libs;
 
-use Acris\App\Libs\Session;
+use Acris\App\Libs\Store;
 
-class Redirect extends Session
+class Redirect extends Store
 {
     public function route($route)
     {
