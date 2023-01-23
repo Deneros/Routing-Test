@@ -2,7 +2,7 @@
 
 namespace Acris\App\Libs;
 
-class Controller
+class Controller extends Redirect
 {
     protected function render(string $path, array $data = []): void
     {
