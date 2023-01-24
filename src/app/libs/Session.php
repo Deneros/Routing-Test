@@ -10,7 +10,8 @@ class Session
     }
 
     public function get($key){
-        return $_SESSION[$key];
+
+        return ($_SESSION[$key]) ?? false;
     }
 
     public function set($key, $data){
