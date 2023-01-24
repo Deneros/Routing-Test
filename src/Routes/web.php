@@ -11,6 +11,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $rou
     $router->get('/controlsheet',[DocumentController::class, 'ControlSheet']);
     $router->get('/transfersheet',[DocumentController::class, 'TransferSheet']);
     $router->get('/foldersheet',[DocumentController::class, 'FolderSheet']);
+    $router->get('/boxsheet',[DocumentController::class, 'BoxSheet']);
 });
 
 
