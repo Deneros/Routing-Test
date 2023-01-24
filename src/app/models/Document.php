@@ -51,7 +51,7 @@ class Document extends Model
 
     public static function generateControlSheet(array $matrix)
     {
-        list($caja, $carpeta, $fila, $contador) = [0, 0, 1, 1];
+        list($caja, $carpeta, $fila, $contador, $index) = [0, 0, 1, 1, 1];
         $excel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $hoja = $excel->getSheet(0);
 
@@ -64,22 +64,29 @@ class Document extends Model
                 $hoja->setTitle("Caja {$caja}");
                 $hoja = $excel->createSheet();
                 $excel->setActiveSheetIndex($excel->getIndex($hoja));
-
+                $index = 1;
                 $fila = 1;
                 $contador = 1;
                 $carpeta = ((int)$datos['carpeta'] - 1);
             }
             if ($carpeta != $datos['carpeta']) {
-                $hoja->setCellValue('A' . $fila, "Carpeta {$datos['carpeta']}");
-                $hoja->insertNewRowBefore($fila + 1, 1);
+                $hoja->setCellValue('A' . $fila++, '');
+                $hoja->setCellValue('A' . $fila++, '');
+                $hoja->setCellValue('A' . $fila++, "SERIE:  CAUSACIONES");
+                $hoja->setCellValue('A' . $fila++, "CAJA:  {$datos['caja']}");
+                $hoja->setCellValue('A' . $fila++, "CARPETA:  {$datos['carpeta']}");
 
+                $index = 1;
                 $fila++;
                 $carpeta = $datos['carpeta'];
             }
-            $hoja->setCellValue('A' . $fila, $fila);
-            $hoja->setCellValue('B' . $fila, 'Causacion ' . $datos['causaciones']);
-            $hoja->setCellValue('C' . $fila, 'Folios ' . $contador . ' a ' .  ((int)$datos['folios'] + $contador - 1));
+            $hoja->setCellValue('A' . $fila, $index);
+            $hoja->setCellValue('B' . $fila, 'CAUSACION ' . $datos['causaciones']);
+            $hoja->setCellValue('C' . $fila, '');
+            $hoja->setCellValue('D' . $fila, '');
+            $hoja->setCellValue('E' . $fila, $contador . ' AL ' .  ((int)$datos['folios'] + $contador - 1));
             $fila++;
+            $index++;
             $contador = $contador + ((int) $datos['folios']);
             $caja = $datos['caja'];
         }
@@ -90,13 +97,13 @@ class Document extends Model
         header('Content-Type: vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="ControlSheet.xlsx"');
 
-        readfile('ControlSheet.xlsx'); 
-        unlink('ControlSheet.xlsx'); 
+        readfile('ControlSheet.xlsx');
+        unlink('ControlSheet.xlsx');
         exit;
     }
 
     public static function generateTransferSheet(array $matrix)
-    {
+    { 
         list($caja, $carpeta, $fila, $folio, $causacion_inicial, $causacion_final, $fecha_inicial, $fecha_final) = [$matrix[0]['caja'], $matrix[0]['carpeta'], 1, 0, $matrix[0]['causaciones'], 0, $matrix[0]['fecha'], ''];
         $excel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $hoja = $excel->getSheet(0);
@@ -205,6 +212,66 @@ class Document extends Model
 
         readfile('FileSheet.xlsx'); 
         unlink('FileSheet.xlsx'); 
+        exit;
+    }
+
+    public static function generateBoxLabels(array $matrix)
+    {
+        list($caja, $carpeta, $fila, $causacion_inicial, $causacion_final, $fecha_inicial, $fecha_final) = [$matrix[0]['caja'], $matrix[0]['carpeta'], 1, $matrix[0]['causaciones'], 0, $matrix[0]['fecha'], ''];
+        $excel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $hoja = $excel->getSheet(0);
+
+        $fecha = new \DateTime();
+
+
+        foreach ($matrix as $key => $datos) {
+
+            $fecha->setISODate(1900, 1, (int)$fecha_inicial);
+            $año = explode('/', $fecha->format('d/m/Y'))[2];
+
+            if ($caja != $datos['caja']) {
+
+                $hoja->setTitle("Caja {$caja}");
+                $hoja = $excel->createSheet();
+                $excel->setActiveSheetIndex($excel->getIndex($hoja));
+            }
+
+            if ($carpeta != $datos['carpeta']) {
+                $causacion_final = $matrix[$key - 1]['causaciones'];
+                $fecha_final = $matrix[$key - 1]['fecha'];
+                $hoja->setCellValue('A' . $fila, $carpeta);
+                $hoja->setCellValue('B' . $fila, 'CAUSACIONES '.$año);
+                $hoja->setCellValue('C' . $fila, $causacion_inicial);
+                $hoja->setCellValue('D' . $fila, $causacion_final);
+                $hoja->setCellValue('E' . $fila, $fecha_inicial);
+                $hoja->setCellValue('F' . $fila, $fecha_final);
+
+                $fila++;
+                $carpeta = $datos['carpeta'];
+                $fecha_inicial = $datos['fecha'];
+                $causacion_inicial = $datos['causaciones'];
+            }
+            if ($key == count($matrix) - 1) {
+                $causacion_final = $datos['causaciones'];
+                $fecha_final = $datos['fecha'];
+                $hoja->setCellValue('A' . $fila, $carpeta);
+                $hoja->setCellValue('B' . $fila, 'CAUSACIONES '.$año);
+                $hoja->setCellValue('C' . $fila, $causacion_inicial);
+                $hoja->setCellValue('D' . $fila, $causacion_final);
+                $hoja->setCellValue('E' . $fila, $fecha_inicial);
+                $hoja->setCellValue('F' . $fila, $fecha_final);
+                $fila++;
+            }
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+
+        $writer->save('BoxSheet.xlsx');
+        header('Content-Type: vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="BoxSheet.xlsx"');
+
+        readfile('BoxSheet.xlsx');
+        unlink('BoxSheet.xlsx');
         exit;
     }
 }
