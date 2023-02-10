@@ -77,6 +77,7 @@ class Document extends Model
                 $hoja->setCellValue('A' . $fila++, "CARPETA:  {$datos['carpeta']}");
 
                 $index = 1;
+                $contador = 1;
                 $fila++;
                 $carpeta = $datos['carpeta'];
             }
